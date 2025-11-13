@@ -141,27 +141,28 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
           onBack={handleBackToChat}
         />
       )}
-      <div className="flex flex-col h-screen max-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
+      <div className="flex flex-col h-screen max-h-screen bg-[var(--background)]">
       {/* Header */}
-      <div className="flex-none bg-white/80 backdrop-blur-sm border-b border-purple-100 px-4 py-4 shadow-sm">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <div className="bg-gradient-to-r from-purple-500 to-blue-500 rounded-full p-2">
+      <div className="flex-none bg-[var(--card-bg)] border-b border-[var(--border)] px-6 py-4">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="bg-indigo-600 rounded-lg p-2.5">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-gray-900">Habit Coach</h1>
-              <p className="text-xs text-gray-500">Let's discover your habits together</p>
+              <h1 className="text-lg font-semibold text-[var(--foreground)]">Setup Your Habits</h1>
+              <p className="text-sm text-gray-500">AI-powered habit discovery</p>
             </div>
           </div>
 
           {/* Switch to Voice Button */}
           <button
             onClick={() => setShowVoiceUI(true)}
-            className="p-2 rounded-full transition-all touch-manipulation bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:shadow-lg"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all bg-indigo-600 text-white hover:bg-indigo-700 text-sm font-medium"
             disabled={isLoading}
           >
-            <Phone className="w-5 h-5" />
+            <Phone className="w-4 h-4" />
+            <span>Voice Mode</span>
           </button>
         </div>
 
@@ -170,17 +171,17 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
       </div>
 
       {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+      <div className="flex-1 overflow-y-auto px-6 py-6 space-y-3 max-w-4xl mx-auto w-full">
         {messages.map((message, index) => (
           <div
             key={index}
             className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}
           >
             <div
-              className={`max-w-[85%] rounded-2xl px-4 py-3 shadow-sm transition-all ${
+              className={`max-w-[80%] rounded-xl px-4 py-3 ${
                 message.role === 'user'
-                  ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white'
-                  : 'bg-white text-gray-800 border border-gray-100'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-[var(--card-bg)] text-[var(--foreground)] border border-[var(--border)]'
               }`}
             >
               <p className="text-sm leading-relaxed whitespace-pre-wrap">
@@ -191,11 +192,11 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
         ))}
         {isLoading && (
           <div className="flex justify-start animate-fade-in">
-            <div className="bg-white rounded-2xl px-4 py-3 shadow-sm border border-gray-100">
+            <div className="bg-[var(--card-bg)] rounded-xl px-4 py-3 border border-[var(--border)]">
               <div className="flex gap-1">
-                <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce delay-100"></div>
-                <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce delay-200"></div>
+                <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce delay-100"></div>
+                <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce delay-200"></div>
               </div>
             </div>
           </div>
@@ -213,34 +214,27 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
       {/* Input Form */}
       <form
         onSubmit={handleSubmit}
-        className="flex-none bg-white/80 backdrop-blur-sm border-t border-purple-100 p-4"
+        className="flex-none bg-[var(--card-bg)] border-t border-[var(--border)] p-4"
       >
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type your message..."
-            disabled={isLoading}
-            className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent text-sm disabled:opacity-50 transition-all"
-          />
-          <button
-            type="submit"
-            disabled={isLoading || !input.trim()}
-            className="flex-none bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-full p-3 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg transition-all touch-manipulation"
-          >
-            <Send className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Voice Mode Hint */}
-        {messages.length === 1 && (
-          <div className="mt-2 text-center">
-            <p className="text-xs text-gray-500">
-              Tip: Tap the <Phone className="w-3 h-3 inline" /> icon to use voice mode
-            </p>
+        <div className="max-w-4xl mx-auto w-full">
+          <div className="flex gap-3">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Type your message..."
+              disabled={isLoading}
+              className="flex-1 px-4 py-3 bg-[var(--background)] border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm disabled:opacity-50 transition-all text-[var(--foreground)]"
+            />
+            <button
+              type="submit"
+              disabled={isLoading || !input.trim()}
+              className="flex-none bg-indigo-600 text-white rounded-lg px-4 py-3 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-indigo-700 transition-all touch-manipulation"
+            >
+              <Send className="w-5 h-5" />
+            </button>
           </div>
-        )}
+        </div>
       </form>
       </div>
     </>

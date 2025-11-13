@@ -1,12 +1,11 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Phone, PhoneOff, Mic, MicOff, Volume2, VolumeX, Sparkles } from 'lucide-react';
+import { Phone, PhoneOff, Mic, MicOff } from 'lucide-react';
 import Vapi from '@vapi-ai/web';
 import { ExtractedHabit } from '@/types/habit';
 import { extractHabitsFromMessage } from '@/utils/habitParser';
 import HabitPreview from './HabitPreview';
-import StepIndicator from './StepIndicator';
 import SummaryModal from './SummaryModal';
 
 interface VoiceOnboardingProps {
@@ -14,19 +13,10 @@ interface VoiceOnboardingProps {
   onBackToChat: () => void;
 }
 
-const ONBOARDING_STEPS = [
-  { id: 1, label: 'Goals', emoji: '🎯' },
-  { id: 2, label: 'Habits', emoji: '✨' },
-  { id: 3, label: 'Details', emoji: '📋' },
-  { id: 4, label: 'Review', emoji: '✅' },
-];
-
 export default function VoiceOnboarding({ onComplete, onBackToChat }: VoiceOnboardingProps) {
   const [isCallActive, setIsCallActive] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [isSpeakerOn, setIsSpeakerOn] = useState(true);
   const [callDuration, setCallDuration] = useState(0);
-  const [currentStep, setCurrentStep] = useState(1);
   const [extractedHabits, setExtractedHabits] = useState<ExtractedHabit[]>([]);
   const [transcript, setTranscript] = useState<string[]>([]);
   const [showSummary, setShowSummary] = useState(false);
@@ -96,19 +86,6 @@ export default function VoiceOnboarding({ onComplete, onBackToChat }: VoiceOnboa
     };
   }, []);
 
-  // Update steps based on progress
-  useEffect(() => {
-    const messageCount = transcript.length;
-    if (extractedHabits.length > 0) {
-      setCurrentStep(4);
-    } else if (messageCount >= 8) {
-      setCurrentStep(3);
-    } else if (messageCount >= 4) {
-      setCurrentStep(2);
-    } else {
-      setCurrentStep(1);
-    }
-  }, [transcript.length, extractedHabits.length]);
 
   const startTimer = () => {
     timerRef.current = setInterval(() => {
@@ -157,10 +134,6 @@ export default function VoiceOnboarding({ onComplete, onBackToChat }: VoiceOnboa
     }
   };
 
-  const toggleSpeaker = () => {
-    setIsSpeakerOn(!isSpeakerOn);
-    // Note: Speaker control is handled by the device
-  };
 
   const handleShowSummary = () => {
     endCall();
@@ -186,142 +159,118 @@ export default function VoiceOnboarding({ onComplete, onBackToChat }: VoiceOnboa
           onBack={handleBackToVoice}
         />
       )}
-      <div className="flex flex-col h-screen max-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
-      {/* Header */}
-      <div className="flex-none px-6 py-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="bg-white/20 backdrop-blur-sm rounded-full p-3">
-              <Sparkles className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-white">Voice Onboarding</h1>
-              <p className="text-sm text-purple-200">AI Habit Coach</p>
-            </div>
-          </div>
-
-          <button
-            onClick={onBackToChat}
-            className="px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white rounded-full text-sm font-medium transition-all touch-manipulation"
-          >
-            Switch to Chat
-          </button>
+      <div className="flex flex-col h-screen max-h-screen bg-[#0f1117]">
+      {/* Minimal Header */}
+      <div className="flex-none px-6 py-4 flex items-center justify-between border-b border-gray-800">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-green-500"></div>
+          <span className="text-sm text-gray-400">Voice Mode</span>
         </div>
-
-        {/* Step Indicator */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3">
-          <StepIndicator steps={ONBOARDING_STEPS} currentStep={currentStep} />
-        </div>
+        <button
+          onClick={onBackToChat}
+          className="px-3 py-1.5 text-sm text-gray-400 hover:text-white transition-colors"
+        >
+          Exit
+        </button>
       </div>
 
-      {/* Call Interface */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6">
-        {/* Avatar/Waveform Area */}
-        <div className="relative mb-8">
+      {/* Call Interface - ChatGPT Voice Style */}
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
+        {/* Large Orb Avatar */}
+        <div className="relative mb-12">
           <div
-            className={`w-48 h-48 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center transition-all duration-300 ${
-              assistantSpeaking ? 'scale-110 shadow-2xl' : 'scale-100'
+            className={`w-64 h-64 rounded-full flex items-center justify-center transition-all duration-500 ${
+              assistantSpeaking ? 'animate-pulse-glow' : ''
             }`}
             style={{
+              background: assistantSpeaking
+                ? 'radial-gradient(circle, rgba(99, 102, 241, 0.8) 0%, rgba(79, 70, 229, 0.4) 50%, rgba(67, 56, 202, 0.1) 100%)'
+                : 'radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, rgba(79, 70, 229, 0.2) 50%, rgba(67, 56, 202, 0.05) 100%)',
               boxShadow: assistantSpeaking
-                ? `0 0 ${60 + volumeLevel * 40}px rgba(168, 85, 247, 0.6)`
-                : '0 20px 60px rgba(0, 0, 0, 0.3)',
+                ? `0 0 ${80 + volumeLevel * 60}px rgba(99, 102, 241, 0.6), 0 0 ${40 + volumeLevel * 30}px rgba(99, 102, 241, 0.4)`
+                : '0 0 60px rgba(99, 102, 241, 0.2)',
             }}
           >
-            <Sparkles className="w-24 h-24 text-white" />
-          </div>
-
-          {/* Speaking indicator */}
-          {isCallActive && (
-            <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2">
-              <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full">
-                <p className="text-sm font-medium text-gray-800">
-                  {assistantSpeaking ? 'Coach is speaking...' : 'Listening...'}
-                </p>
-              </div>
+            {/* Inner orb */}
+            <div className="w-48 h-48 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center">
+              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-500"></div>
             </div>
-          )}
+          </div>
         </div>
 
-        {/* Call Status */}
-        <div className="text-center mb-8">
+        {/* Status Text */}
+        <div className="text-center mb-12">
           {isCallActive ? (
             <>
-              <p className="text-white text-2xl font-semibold mb-2">Call Active</p>
-              <p className="text-purple-200 text-lg">{formatDuration(callDuration)}</p>
+              <p className="text-gray-400 text-sm mb-1">{formatDuration(callDuration)}</p>
+              <p className="text-white text-lg font-medium">
+                {assistantSpeaking ? 'Speaking...' : 'Listening...'}
+              </p>
             </>
           ) : (
             <>
-              <p className="text-white text-2xl font-semibold mb-2">Ready to Start</p>
-              <p className="text-purple-200 text-sm">Tap the call button to begin your voice onboarding</p>
+              <p className="text-white text-xl font-medium mb-2">Voice Coaching</p>
+              <p className="text-gray-400 text-sm">Start a conversation to discover your habits</p>
             </>
           )}
         </div>
 
-        {/* Call Controls */}
-        <div className="flex items-center gap-6 mb-8">
+        {/* Call Controls - Minimal Style */}
+        <div className="flex items-center justify-center gap-4">
           {isCallActive ? (
             <>
               {/* Mute Button */}
               <button
                 onClick={toggleMute}
-                className={`w-16 h-16 rounded-full flex items-center justify-center transition-all touch-manipulation ${
+                className={`w-14 h-14 rounded-full flex items-center justify-center transition-all ${
                   isMuted
-                    ? 'bg-red-500 text-white'
-                    : 'bg-white/20 backdrop-blur-sm text-white hover:bg-white/30'
+                    ? 'bg-red-500 hover:bg-red-600 text-white'
+                    : 'bg-gray-800 hover:bg-gray-700 text-gray-300'
                 }`}
               >
-                {isMuted ? <MicOff className="w-7 h-7" /> : <Mic className="w-7 h-7" />}
+                {isMuted ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
               </button>
 
               {/* End Call Button */}
               <button
                 onClick={endCall}
-                className="w-20 h-20 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center shadow-2xl transition-all transform hover:scale-105 touch-manipulation"
+                className="w-16 h-16 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-all"
               >
-                <PhoneOff className="w-9 h-9" />
-              </button>
-
-              {/* Speaker Button */}
-              <button
-                onClick={toggleSpeaker}
-                className={`w-16 h-16 rounded-full flex items-center justify-center transition-all touch-manipulation ${
-                  isSpeakerOn
-                    ? 'bg-white/20 backdrop-blur-sm text-white hover:bg-white/30'
-                    : 'bg-red-500 text-white'
-                }`}
-              >
-                {isSpeakerOn ? <Volume2 className="w-7 h-7" /> : <VolumeX className="w-7 h-7" />}
+                <PhoneOff className="w-7 h-7" />
               </button>
             </>
           ) : (
             <button
               onClick={startCall}
-              className="w-20 h-20 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center shadow-2xl transition-all transform hover:scale-105 touch-manipulation"
+              className="w-16 h-16 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition-all"
             >
-              <Phone className="w-9 h-9" />
+              <Phone className="w-7 h-7" />
             </button>
           )}
         </div>
       </div>
 
-      {/* Habit Preview - Fixed at bottom */}
-      {extractedHabits.length > 0 && (
-        <div className="flex-none px-4 pb-4 animate-slide-up">
-          <HabitPreview habits={extractedHabits} onComplete={handleShowSummary} />
+      {/* Transcript - Minimal Display */}
+      {isCallActive && transcript.length > 0 && (
+        <div className="flex-none px-6 pb-6">
+          <div className="bg-gray-900/50 backdrop-blur-sm rounded-lg p-4 max-w-2xl mx-auto border border-gray-800">
+            <p className="text-xs text-gray-500 mb-2 uppercase tracking-wide">Transcript</p>
+            <div className="space-y-2 max-h-24 overflow-y-auto">
+              {transcript.slice(-2).map((text, index) => (
+                <p key={index} className="text-sm text-gray-300">
+                  {text}
+                </p>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Transcript (optional, can be hidden) */}
-      {transcript.length > 0 && (
-        <div className="flex-none px-6 pb-6">
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 max-h-32 overflow-y-auto">
-            <p className="text-xs text-purple-200 mb-2 font-medium">Transcript:</p>
-            {transcript.slice(-3).map((text, index) => (
-              <p key={index} className="text-sm text-white/90 mb-1">
-                {text}
-              </p>
-            ))}
+      {/* Habit Preview - Fixed at bottom */}
+      {extractedHabits.length > 0 && (
+        <div className="flex-none px-6 pb-6 animate-slide-up">
+          <div className="max-w-2xl mx-auto">
+            <HabitPreview habits={extractedHabits} onComplete={handleShowSummary} />
           </div>
         </div>
       )}

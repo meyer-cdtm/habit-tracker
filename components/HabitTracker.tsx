@@ -50,47 +50,50 @@ export default function HabitTracker({ habits, onToggleHabit, onStartNewOnboardi
   };
 
   return (
-    <div className="flex flex-col h-screen max-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
-      {/* Header with Stats */}
-      <div className="flex-none bg-white/80 backdrop-blur-sm border-b border-purple-100 px-4 py-4 shadow-sm">
-        <div className="flex items-center justify-between mb-3">
-          <h1 className="text-xl font-bold text-gray-900">My Habits</h1>
+    <div className="flex flex-col h-screen max-h-screen bg-[var(--background)]">
+      {/* Modern Header */}
+      <div className="flex-none bg-[var(--card-bg)] border-b border-[var(--border)] px-6 py-4">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-semibold text-[var(--foreground)]">Dashboard</h1>
+            <p className="text-sm text-gray-500">Track your habits and build consistency</p>
+          </div>
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setShowMenu(!showMenu)}
-              className="text-gray-500 hover:text-gray-700 transition-colors p-2 touch-manipulation"
+              className="p-2.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors touch-manipulation"
               aria-label="Settings"
             >
-              <Settings className="w-5 h-5" />
+              <Settings className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </button>
 
             {/* Dropdown Menu */}
             {showMenu && (
-              <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50 animate-fade-in">
+              <div className="absolute right-0 mt-2 w-64 bg-[var(--card-bg)] rounded-lg shadow-xl border border-[var(--border)] py-2 z-50 animate-fade-in">
                 <button
                   onClick={() => {
                     onStartNewOnboarding();
                     setShowMenu(false);
                   }}
-                  className="w-full px-4 py-3 text-left hover:bg-purple-50 transition-colors flex items-center gap-3 touch-manipulation"
+                  className="w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-3 touch-manipulation"
                 >
-                  <RotateCcw className="w-5 h-5 text-purple-600" />
+                  <RotateCcw className="w-5 h-5 text-indigo-600" />
                   <div>
-                    <div className="text-sm font-medium text-gray-900">Start New Onboarding</div>
-                    <div className="text-xs text-gray-500">Keep current data</div>
+                    <div className="text-sm font-medium text-[var(--foreground)]">Add More Habits</div>
+                    <div className="text-xs text-gray-500">Start new onboarding</div>
                   </div>
                 </button>
 
-                <div className="h-px bg-gray-200 my-1"></div>
+                <div className="h-px bg-[var(--border)] my-1"></div>
 
                 <button
                   onClick={handleClearData}
-                  className="w-full px-4 py-3 text-left hover:bg-red-50 transition-colors flex items-center gap-3 touch-manipulation"
+                  className="w-full px-4 py-3 text-left hover:bg-red-50 dark:hover:bg-red-950 transition-colors flex items-center gap-3 touch-manipulation"
                 >
                   <Trash2 className="w-5 h-5 text-red-600" />
                   <div>
-                    <div className="text-sm font-medium text-gray-900">Clear All Data</div>
-                    <div className="text-xs text-gray-500">Delete habits & progress</div>
+                    <div className="text-sm font-medium text-[var(--foreground)]">Clear All Data</div>
+                    <div className="text-xs text-gray-500">Delete all habits & progress</div>
                   </div>
                 </button>
               </div>
@@ -98,37 +101,40 @@ export default function HabitTracker({ habits, onToggleHabit, onStartNewOnboardi
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-3 gap-2">
-          <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-3 text-white">
-            <div className="flex items-center gap-1 mb-1">
-              <Trophy className="w-4 h-4" />
-              <span className="text-xs font-medium">Today</span>
+        {/* Stats Cards - Modern B2B Style */}
+        <div className="grid grid-cols-3 gap-4">
+          <div className="bg-[var(--background)] border border-[var(--border)] rounded-lg p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Completion Rate</span>
+              <Trophy className="w-5 h-5 text-indigo-600" />
             </div>
-            <p className="text-2xl font-bold">{completionRate}%</p>
+            <p className="text-3xl font-bold text-[var(--foreground)]">{completionRate}%</p>
+            <p className="text-xs text-gray-500 mt-1">Today's progress</p>
           </div>
 
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-3 text-white">
-            <div className="flex items-center gap-1 mb-1">
-              <Flame className="w-4 h-4" />
-              <span className="text-xs font-medium">Streak</span>
+          <div className="bg-[var(--background)] border border-[var(--border)] rounded-lg p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Current Streak</span>
+              <Flame className="w-5 h-5 text-orange-500" />
             </div>
-            <p className="text-2xl font-bold">{maxStreak}</p>
+            <p className="text-3xl font-bold text-[var(--foreground)]">{maxStreak}</p>
+            <p className="text-xs text-gray-500 mt-1">Days in a row</p>
           </div>
 
-          <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-3 text-white">
-            <div className="flex items-center gap-1 mb-1">
-              <CalendarIcon className="w-4 h-4" />
-              <span className="text-xs font-medium">Total</span>
+          <div className="bg-[var(--background)] border border-[var(--border)] rounded-lg p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Habits</span>
+              <CalendarIcon className="w-5 h-5 text-green-600" />
             </div>
-            <p className="text-2xl font-bold">{totalHabits}</p>
+            <p className="text-3xl font-bold text-[var(--foreground)]">{totalHabits}</p>
+            <p className="text-xs text-gray-500 mt-1">Total tracked</p>
           </div>
         </div>
       </div>
 
-      {/* Week View */}
-      <div className="flex-none bg-white/60 backdrop-blur-sm border-b border-purple-100 px-4 py-3">
-        <div className="flex justify-between items-center">
+      {/* Week View - Clean Design */}
+      <div className="flex-none bg-[var(--card-bg)] border-b border-[var(--border)] px-6 py-4">
+        <div className="flex justify-between items-center max-w-4xl mx-auto">
           {weekDates.map((date) => {
             const dateString = format(date, 'yyyy-MM-dd');
             const completed = habits.filter((h) => h.completions[dateString]).length;
@@ -137,27 +143,25 @@ export default function HabitTracker({ habits, onToggleHabit, onStartNewOnboardi
             return (
               <div
                 key={dateString}
-                className={`flex flex-col items-center gap-1 ${
-                  isCurrentDay ? 'scale-110' : ''
-                }`}
+                className="flex flex-col items-center gap-2"
               >
-                <span className="text-xs font-medium text-gray-500">
+                <span className="text-xs font-medium text-gray-500 uppercase">
                   {format(date, 'EEE')}
                 </span>
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
+                  className={`w-11 h-11 rounded-lg flex items-center justify-center text-sm font-semibold transition-all ${
                     isCurrentDay
-                      ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-md'
+                      ? 'bg-indigo-600 text-white ring-2 ring-indigo-300 ring-offset-2'
                       : completed === totalHabits && totalHabits > 0
-                      ? 'bg-green-100 text-green-700'
+                      ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
                       : completed > 0
-                      ? 'bg-purple-100 text-purple-700'
-                      : 'bg-gray-100 text-gray-400'
+                      ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300'
+                      : 'bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-600'
                   }`}
                 >
                   {format(date, 'd')}
                 </div>
-                {completed > 0 && (
+                {completed > 0 && !isCurrentDay && (
                   <span className="text-xs text-gray-500">
                     {completed}/{totalHabits}
                   </span>
@@ -169,17 +173,17 @@ export default function HabitTracker({ habits, onToggleHabit, onStartNewOnboardi
       </div>
 
       {/* Habits List */}
-      <div className="flex-1 overflow-y-auto px-4 py-4">
+      <div className="flex-1 overflow-y-auto px-6 py-6">
         {habits.length === 0 ? (
           <div className="flex items-center justify-center h-full">
-            <div className="text-center text-gray-500">
+            <div className="text-center">
               <CalendarIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-              <p className="text-lg font-medium">No habits yet</p>
-              <p className="text-sm">Start a new onboarding to add habits</p>
+              <p className="text-lg font-semibold text-[var(--foreground)] mb-2">No habits yet</p>
+              <p className="text-sm text-gray-500">Start onboarding to create your first habit</p>
             </div>
           </div>
         ) : (
-          <div className="space-y-3 pb-4">
+          <div className="space-y-3 pb-4 max-w-4xl mx-auto">
             {habits.map((habit) => {
               const isCompleted = habit.completions[todayString];
 
@@ -187,43 +191,39 @@ export default function HabitTracker({ habits, onToggleHabit, onStartNewOnboardi
                 <button
                   key={habit.id}
                   onClick={() => onToggleHabit(habit.id, todayString)}
-                  className={`w-full bg-white rounded-2xl p-4 shadow-sm border transition-all touch-manipulation ${
+                  className={`w-full bg-[var(--card-bg)] rounded-lg p-4 border transition-all touch-manipulation hover:shadow-md ${
                     isCompleted
-                      ? 'border-green-200 bg-gradient-to-r from-green-50 to-emerald-50'
-                      : 'border-gray-200 hover:border-purple-200 active:scale-98'
+                      ? 'border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950'
+                      : 'border-[var(--border)] hover:border-indigo-200 dark:hover:border-indigo-800'
                   }`}
                 >
                   <div className="flex items-center gap-4">
                     <div className="flex-none">
                       {isCompleted ? (
-                        <CheckCircle2 className="w-8 h-8 text-green-500" />
+                        <CheckCircle2 className="w-7 h-7 text-green-600" />
                       ) : (
-                        <Circle className="w-8 h-8 text-gray-300" />
+                        <Circle className="w-7 h-7 text-gray-400" />
                       )}
                     </div>
 
                     <div className="flex-1 text-left">
                       <h3
-                        className={`font-semibold mb-1 ${
-                          isCompleted ? 'text-green-900 line-through' : 'text-gray-900'
+                        className={`font-medium mb-1 ${
+                          isCompleted ? 'text-green-900 dark:text-green-300 line-through' : 'text-[var(--foreground)]'
                         }`}
                       >
                         {habit.name}
                       </h3>
                       <div className="flex items-center gap-3 text-xs text-gray-500">
-                        <span className="flex items-center gap-1">
-                          📅 {habit.frequency}
+                        <span className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded">
+                          {habit.frequency}
                         </span>
-                        <span className="flex items-center gap-1">
-                          {habit.timeOfDay === 'morning' && '🌅'}
-                          {habit.timeOfDay === 'afternoon' && '☀️'}
-                          {habit.timeOfDay === 'evening' && '🌙'}
-                          {habit.timeOfDay === 'anytime' && '⏰'}
+                        <span className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded">
                           {habit.timeOfDay}
                         </span>
                         {habit.streak > 0 && (
-                          <span className="flex items-center gap-1 font-semibold text-orange-600">
-                            🔥 {habit.streak}
+                          <span className="px-2 py-1 bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 rounded font-medium">
+                            {habit.streak} day streak
                           </span>
                         )}
                       </div>
