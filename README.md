@@ -1,36 +1,148 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Habit Tracker with AI Onboarding
+
+A mobile-first habit tracking application with an intelligent chatbot onboarding experience powered by OpenAI's ChatGPT. The chatbot asks proactive questions to understand your goals and helps you define meaningful, trackable habits.
+
+## Features
+
+- **AI-Powered Onboarding**: Conversational chatbot that asks thoughtful questions to understand your habits
+- **Real-time Habit Visualization**: See your habits being extracted and displayed as you chat
+- **Mobile-First Design**: Optimized for mobile devices with touch-friendly UI
+- **Streak Tracking**: Automatically calculates and displays your habit streaks
+- **Weekly Overview**: Visual calendar showing your progress throughout the week
+- **Local Storage**: Your habits and progress are saved locally in your browser
+- **Beautiful Gradients**: Modern, colorful UI with smooth animations
+
+## Tech Stack
+
+- Next.js 16 (App Router)
+- React 19
+- TypeScript
+- Tailwind CSS
+- OpenAI API (GPT-4o-mini)
+- date-fns for date manipulation
+- lucide-react for icons
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+ installed
+- pnpm package manager
+- OpenAI API key ([Get one here](https://platform.openai.com/api-keys))
+
+### Installation
+
+1. Clone the repository and navigate to the project:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cd habit-tracker
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. Set up your environment variables:
 
-## Learn More
+```bash
+cp .env.example .env.local
+```
 
-To learn more about Next.js, take a look at the following resources:
+4. Add your OpenAI API key to `.env.local`:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+OPENAI_API_KEY=sk-your-api-key-here
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+5. Run the development server:
 
-## Deploy on Vercel
+```bash
+pnpm dev
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+6. Open [http://localhost:3000](http://localhost:3000) in your browser (or open on your phone using your local IP address for mobile testing)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## How It Works
+
+### Onboarding Flow
+
+1. The chatbot greets you and asks about areas of your life you want to improve
+2. It asks follow-up questions to understand:
+   - Your specific goals
+   - How frequently you want to track each habit (daily/weekly)
+   - What time of day works best (morning/afternoon/evening/anytime)
+3. As the chatbot identifies habits, they appear in a preview card at the bottom
+4. Once you're satisfied, click "Start Tracking These Habits" to begin
+
+### Tracking Habits
+
+- Tap any habit to mark it complete for today
+- View your completion rate at the top (Today %)
+- See your longest streak (Streak)
+- Check the weekly calendar to see your progress
+- Tap the settings icon to reset and start a new onboarding
+
+### Data Persistence
+
+All your habits and completion data are stored in browser localStorage, so your progress persists between sessions.
+
+## Project Structure
+
+```
+habit-tracker/
+├── app/
+│   ├── api/chat/route.ts      # OpenAI API endpoint
+│   ├── page.tsx               # Main app component
+│   ├── layout.tsx             # Root layout
+│   └── globals.css            # Global styles
+├── components/
+│   ├── Onboarding.tsx         # Chatbot onboarding UI
+│   ├── HabitPreview.tsx       # Habit preview card
+│   └── HabitTracker.tsx       # Main habit tracking dashboard
+├── types/
+│   └── habit.ts               # TypeScript types
+└── utils/
+    ├── habitParser.ts         # Extract habits from chat messages
+    └── storage.ts             # localStorage utilities
+```
+
+## Customization
+
+### Chatbot Behavior
+
+Edit the system prompt in `app/api/chat/route.ts` to change how the chatbot interacts with users.
+
+### Styling
+
+The app uses Tailwind CSS. Customize colors and styles in:
+- `app/globals.css` for global styles
+- Individual component files for component-specific styles
+
+### OpenAI Model
+
+You can change the model in `app/api/chat/route.ts` (currently using `gpt-4o-mini` for cost efficiency).
+
+## Mobile Testing
+
+To test on a real mobile device:
+
+1. Find your computer's local IP address:
+   - Mac/Linux: `ifconfig | grep inet`
+   - Windows: `ipconfig`
+
+2. Run the dev server:
+   ```bash
+   pnpm dev
+   ```
+
+3. On your phone, navigate to `http://YOUR_IP:3000`
+
+## License
+
+MIT
+
+## Contributing
+
+Feel free to submit issues and pull requests!
