@@ -80,12 +80,15 @@ export default function Home() {
     });
   };
 
-  const handleReset = () => {
-    if (confirm('Are you sure you want to reset and start over? This will delete all your habits and progress.')) {
-      clearHabits();
-      setHabits([]);
-      setIsOnboarding(true);
-    }
+  const handleStartNewOnboarding = () => {
+    // Just go back to onboarding, keeping existing habits
+    setIsOnboarding(true);
+  };
+
+  const handleClearAllData = () => {
+    clearHabits();
+    setHabits([]);
+    setIsOnboarding(true);
   };
 
   if (isOnboarding) {
@@ -96,7 +99,8 @@ export default function Home() {
     <HabitTracker
       habits={habits}
       onToggleHabit={handleToggleHabit}
-      onReset={handleReset}
+      onStartNewOnboarding={handleStartNewOnboarding}
+      onClearAllData={handleClearAllData}
     />
   );
 }

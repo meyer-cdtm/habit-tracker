@@ -1,16 +1,28 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles } from 'lucide-react';
+import { Send, Sparkles, Phone } from 'lucide-react';
 import { Message, ExtractedHabit } from '@/types/habit';
 import { extractHabitsFromMessage } from '@/utils/habitParser';
 import HabitPreview from './HabitPreview';
+import StepIndicator from './StepIndicator';
+import VoiceOnboarding from './VoiceOnboarding';
+import SummaryModal from './SummaryModal';
 
 interface OnboardingProps {
   onComplete: (habits: ExtractedHabit[]) => void;
 }
 
+const ONBOARDING_STEPS = [
+  { id: 1, label: 'Goals', emoji: '🎯' },
+  { id: 2, label: 'Habits', emoji: '✨' },
+  { id: 3, label: 'Details', emoji: '📋' },
+  { id: 4, label: 'Review', emoji: '✅' },
+];
+
 export default function Onboarding({ onComplete }: OnboardingProps) {
+  const [showVoiceUI, setShowVoiceUI] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
@@ -20,6 +32,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [extractedHabits, setExtractedHabits] = useState<ExtractedHabit[]>([]);
+  const [currentStep, setCurrentStep] = useState(1);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -29,6 +42,20 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Auto-advance steps based on conversation progress
+  useEffect(() => {
+    const messageCount = messages.length;
+    if (extractedHabits.length > 0) {
+      setCurrentStep(4); // Review step
+    } else if (messageCount >= 5) {
+      setCurrentStep(3); // Details step
+    } else if (messageCount >= 3) {
+      setCurrentStep(2); // Habits step
+    } else {
+      setCurrentStep(1); // Goals step
+    }
+  }, [messages.length, extractedHabits.length]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,25 +107,66 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     }
   };
 
-  const handleComplete = () => {
+  const handleShowSummary = () => {
     if (extractedHabits.length > 0) {
-      onComplete(extractedHabits);
+      setShowSummary(true);
     }
   };
 
+  const handleConfirmHabits = () => {
+    onComplete(extractedHabits);
+  };
+
+  const handleBackToChat = () => {
+    setShowSummary(false);
+  };
+
+  // If voice UI is active, show the VoiceOnboarding component
+  if (showVoiceUI) {
+    return (
+      <VoiceOnboarding
+        onComplete={onComplete}
+        onBackToChat={() => setShowVoiceUI(false)}
+      />
+    );
+  }
+
+  // Otherwise, show the chat UI
   return (
-    <div className="flex flex-col h-screen max-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
+    <>
+      {showSummary && (
+        <SummaryModal
+          habits={extractedHabits}
+          onConfirm={handleConfirmHabits}
+          onBack={handleBackToChat}
+        />
+      )}
+      <div className="flex flex-col h-screen max-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
       {/* Header */}
       <div className="flex-none bg-white/80 backdrop-blur-sm border-b border-purple-100 px-4 py-4 shadow-sm">
-        <div className="flex items-center gap-2">
-          <div className="bg-gradient-to-r from-purple-500 to-blue-500 rounded-full p-2">
-            <Sparkles className="w-5 h-5 text-white" />
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <div className="bg-gradient-to-r from-purple-500 to-blue-500 rounded-full p-2">
+              <Sparkles className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-gray-900">Habit Coach</h1>
+              <p className="text-xs text-gray-500">Let's discover your habits together</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-lg font-bold text-gray-900">Habit Coach</h1>
-            <p className="text-xs text-gray-500">Let's discover your habits together</p>
-          </div>
+
+          {/* Switch to Voice Button */}
+          <button
+            onClick={() => setShowVoiceUI(true)}
+            className="p-2 rounded-full transition-all touch-manipulation bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:shadow-lg"
+            disabled={isLoading}
+          >
+            <Phone className="w-5 h-5" />
+          </button>
         </div>
+
+        {/* Step Indicator */}
+        <StepIndicator steps={ONBOARDING_STEPS} currentStep={currentStep} />
       </div>
 
       {/* Messages Container */}
@@ -106,13 +174,13 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
         {messages.map((message, index) => (
           <div
             key={index}
-            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}
           >
             <div
-              className={`max-w-[85%] rounded-2xl px-4 py-3 ${
+              className={`max-w-[85%] rounded-2xl px-4 py-3 shadow-sm transition-all ${
                 message.role === 'user'
                   ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white'
-                  : 'bg-white text-gray-800 shadow-sm border border-gray-100'
+                  : 'bg-white text-gray-800 border border-gray-100'
               }`}
             >
               <p className="text-sm leading-relaxed whitespace-pre-wrap">
@@ -122,7 +190,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
           </div>
         ))}
         {isLoading && (
-          <div className="flex justify-start">
+          <div className="flex justify-start animate-fade-in">
             <div className="bg-white rounded-2xl px-4 py-3 shadow-sm border border-gray-100">
               <div className="flex gap-1">
                 <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></div>
@@ -137,8 +205,8 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
 
       {/* Habit Preview - Fixed above input */}
       {extractedHabits.length > 0 && (
-        <div className="flex-none px-4 pb-2">
-          <HabitPreview habits={extractedHabits} onComplete={handleComplete} />
+        <div className="flex-none px-4 pb-2 animate-slide-up">
+          <HabitPreview habits={extractedHabits} onComplete={handleShowSummary} />
         </div>
       )}
 
@@ -154,17 +222,27 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message..."
             disabled={isLoading}
-            className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent text-sm disabled:opacity-50"
+            className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent text-sm disabled:opacity-50 transition-all"
           />
           <button
             type="submit"
             disabled={isLoading || !input.trim()}
-            className="flex-none bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-full p-3 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg transition-shadow touch-manipulation"
+            className="flex-none bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-full p-3 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg transition-all touch-manipulation"
           >
             <Send className="w-5 h-5" />
           </button>
         </div>
+
+        {/* Voice Mode Hint */}
+        {messages.length === 1 && (
+          <div className="mt-2 text-center">
+            <p className="text-xs text-gray-500">
+              Tip: Tap the <Phone className="w-3 h-3 inline" /> icon to use voice mode
+            </p>
+          </div>
+        )}
       </form>
-    </div>
+      </div>
+    </>
   );
 }

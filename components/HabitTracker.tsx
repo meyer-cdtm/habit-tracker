@@ -1,19 +1,22 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { format, startOfWeek, addDays, isToday, parseISO } from 'date-fns';
-import { CheckCircle2, Circle, Trophy, Flame, Calendar as CalendarIcon, Settings } from 'lucide-react';
+import { CheckCircle2, Circle, Trophy, Flame, Calendar as CalendarIcon, Settings, RotateCcw, Trash2 } from 'lucide-react';
 import { Habit } from '@/types/habit';
 
 interface HabitTrackerProps {
   habits: Habit[];
   onToggleHabit: (habitId: string, date: string) => void;
-  onReset: () => void;
+  onStartNewOnboarding: () => void;
+  onClearAllData: () => void;
 }
 
-export default function HabitTracker({ habits, onToggleHabit, onReset }: HabitTrackerProps) {
+export default function HabitTracker({ habits, onToggleHabit, onStartNewOnboarding, onClearAllData }: HabitTrackerProps) {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [weekDates, setWeekDates] = useState<Date[]>([]);
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const start = startOfWeek(selectedDate, { weekStartsOn: 1 }); // Monday
@@ -28,19 +31,71 @@ export default function HabitTracker({ habits, onToggleHabit, onReset }: HabitTr
 
   const maxStreak = Math.max(...habits.map((h) => h.streak), 0);
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowMenu(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleClearData = () => {
+    if (confirm('Are you sure you want to delete all your habits and progress? This cannot be undone.')) {
+      onClearAllData();
+      setShowMenu(false);
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen max-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
       {/* Header with Stats */}
       <div className="flex-none bg-white/80 backdrop-blur-sm border-b border-purple-100 px-4 py-4 shadow-sm">
         <div className="flex items-center justify-between mb-3">
           <h1 className="text-xl font-bold text-gray-900">My Habits</h1>
-          <button
-            onClick={onReset}
-            className="text-gray-500 hover:text-gray-700 transition-colors p-2 touch-manipulation"
-            aria-label="Settings"
-          >
-            <Settings className="w-5 h-5" />
-          </button>
+          <div className="relative" ref={menuRef}>
+            <button
+              onClick={() => setShowMenu(!showMenu)}
+              className="text-gray-500 hover:text-gray-700 transition-colors p-2 touch-manipulation"
+              aria-label="Settings"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
+
+            {/* Dropdown Menu */}
+            {showMenu && (
+              <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50 animate-fade-in">
+                <button
+                  onClick={() => {
+                    onStartNewOnboarding();
+                    setShowMenu(false);
+                  }}
+                  className="w-full px-4 py-3 text-left hover:bg-purple-50 transition-colors flex items-center gap-3 touch-manipulation"
+                >
+                  <RotateCcw className="w-5 h-5 text-purple-600" />
+                  <div>
+                    <div className="text-sm font-medium text-gray-900">Start New Onboarding</div>
+                    <div className="text-xs text-gray-500">Keep current data</div>
+                  </div>
+                </button>
+
+                <div className="h-px bg-gray-200 my-1"></div>
+
+                <button
+                  onClick={handleClearData}
+                  className="w-full px-4 py-3 text-left hover:bg-red-50 transition-colors flex items-center gap-3 touch-manipulation"
+                >
+                  <Trash2 className="w-5 h-5 text-red-600" />
+                  <div>
+                    <div className="text-sm font-medium text-gray-900">Clear All Data</div>
+                    <div className="text-xs text-gray-500">Delete habits & progress</div>
+                  </div>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Stats Cards */}
